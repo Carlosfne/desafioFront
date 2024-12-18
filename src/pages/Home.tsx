@@ -14,6 +14,7 @@ const Home: React.FC = () => {
   const [fullname, setFullName] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'stars' | 'name'>('stars');
 
   useEffect(() => {
     if (searchQuery) {
@@ -37,6 +38,15 @@ const Home: React.FC = () => {
     }
   }, [searchQuery]);
 
+  const handleSortChange = (order: 'stars' | 'name') => {
+    setSortOrder(order);
+    setRepos((prevRepos) =>
+      [...prevRepos].sort((a, b) =>
+        order === 'stars' ? b.stargazers_count - a.stargazers_count : a.name.localeCompare(b.name)
+      )
+    );
+  };
+
   return (
     <Container maxWidth="lg">
       <Box my={4}>
@@ -51,11 +61,37 @@ const Home: React.FC = () => {
             {user && <UserCard user={user} />}
           </Grid>
           <Grid item xs={12} md={8}>
-            {repos.length > 0 && <RepoList username={user?.login ?? ''} repos={repos} fullname={fullname} />}
+            {repos.length > 0 && (
+              <RepoList
+                username={user?.login ?? ''}
+                repos={repos}
+                sortOrder={sortOrder}
+                onSortChange={handleSortChange}
+                fullname={fullname}
+              />
+            )}
           </Grid>
         </Grid2>
       </Box>
     </Container>
+    // <Container maxWidth="lg">
+    //   <Box my={4}>
+    //     <Typography variant="h6" align="center" gutterBottom>
+    //       Procure aqui pelo usuário Github
+    //     </Typography>
+    //     <Searchbar setSearchQuery={setSearchQuery} />
+    //     {loading && <CircularProgress />}
+    //     {error && <Typography color="error">{error}</Typography>}
+    //     <Grid2 container spacing={3}>
+    //       <Grid item xs={12} md={4}>
+    //         {user && <UserCard user={user} />}
+    //       </Grid>
+    //       <Grid item xs={12} md={8}>
+    //         {repos.length > 0 && <RepoList username={user?.login ?? ''} repos={repos} fullname={fullname} />}
+    //       </Grid>
+    //     </Grid2>
+    //   </Box>
+    // </Container>
   );
 };
 
